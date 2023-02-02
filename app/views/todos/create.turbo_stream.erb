@@ -1,0 +1,26 @@
+<%# <turbo-stream action="prepend" target="todos">
+  <template>
+    <li class="py-2 px-4 border-b border-gray-300">
+      A new todo
+    </li>
+  </template>
+</turbo-stream>
+
+<turbo-stream action="replace" target="new_todo_form">
+  <template>
+    <form id="new_todo_form" action="/todos" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="TmpPYfxQOln1t3jmigbzZ49ciBWjivGEjp_nJUWJMeUJZSoeA8dvbkLeD6kLkmHZx-zc8kOzcqu69tWGYASlpQ" autocomplete="off" />
+      <div class="flex items-stretch flex-grow">
+        <label class="sr-only" for="todo_name">Name</label>
+        <input class="block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="Add a new todo..." type="text" name="todo[name]" id="todo_name" />
+        <input type="submit" name="commit" value="Create Todo" class="-ml-px relative px-4 py-2 border border-blue-600 text-sm font-medium rounded-r-md text-white bg-blue-600 hover:bg-blue-700" data-disable-with="Create Todo" />
+      </div>
+    </form>
+  </template>
+</turbo-stream> %>
+
+<%= turbo_stream.replace "#{dom_id(Todo.new)}_form" do %>
+  <%= render "form", todo: Todo.new %>
+<% end %>
+<%= turbo_stream.prepend "todos" do %>
+  <%= render "todo", todo: @todo %>
+<% end %>
