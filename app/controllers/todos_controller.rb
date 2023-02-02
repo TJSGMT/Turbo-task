@@ -5,6 +5,7 @@ class TodosController < ApplicationController
   def index
     @todos = Todo.where(status: params[:status].presence || 'incomplete')
   end
+  
   # GET /todos/1 or /todos/1.json
   def show
   end
