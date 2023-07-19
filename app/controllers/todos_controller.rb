@@ -21,11 +21,10 @@ class TodosController < ApplicationController
 
   # POST /todos or /todos.json
   def create
-    @todo = Todo.new(todo_params)
-
+    @todo = Todo.new(todo_params) 
     respond_to do |format|
       if @todo.save
-        format.turbo_stream
+        format.turbo_stream 
         format.html { redirect_to todo_url(@todo), notice: "Todo was successfully created." }
       else
         # binding.pry
