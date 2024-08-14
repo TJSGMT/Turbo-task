@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+
+  psql_db:
+    image: postgres:16.3
+    container_name: postgres
+    environment:
+      POSTGRES_USER: myapp_user
+      POSTGRES_PASSWORD: myapp_password
+      POSTGRES_DB: myapp_development
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - binding_2tier
+
+  2tier_todo:
+    build: .
+    container_name: todo_app
+    environment:
+      PGHOST: psql_db
+      PGUSER: myapp_user
+      PGPASSWORD: myapp_password
+      PGDATABASE: myapp_development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - psql_db
+    networks:
+      - binding_2tier
+
+volumes:
+  pgdata:
+
+networks:
+  binding_2tier:
+    driver: bridge
+
