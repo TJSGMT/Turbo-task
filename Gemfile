@@ -74,3 +74,4 @@ group :test do
   gem "webdrivers"
 end
 gem "pry"
+gem 'pg', '~> 1.2'
