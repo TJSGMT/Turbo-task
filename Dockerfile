@@ -8,7 +8,7 @@
       postgresql-client \
       build-essential \
       libpq-dev  # Changed to libpq-dev for PostgreSQL support
-    
+  
   # Set an environment variable to skip installing Gem documentation
   ENV BUNDLE_WITHOUT="development test"
   
@@ -48,7 +48,8 @@
   ENV PGDATABASE=myapp_production
   
   # Set environment variables for Rails secret key
-  ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
+  # Note: It's better to pass secrets securely in production using Docker secrets or environment variables
+  ENV SECRET_KEY_BASE=your_production_secret_key_here
   
   # Set the default command to run when starting the container
-  CMD ["bash", "-c", "rm -f tmp/pids/server.pid && rails db:migrate && rails server -b 0.0.0.0"]  
+  CMD ["bash", "-c", "rm -f tmp/pids/server.pid && rails db:migrate && rails server -b 0.0.0.0"]
