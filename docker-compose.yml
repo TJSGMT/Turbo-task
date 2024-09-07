@@ -22,6 +22,7 @@ services:
       PGUSER: myapp_user
       PGPASSWORD: myapp_password
       PGDATABASE: myapp_development
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}  # Add SECRET_KEY_BASE environment variable
     ports:
       - "3000:3000"
     depends_on:
@@ -35,4 +36,3 @@ volumes:
 networks:
   binding_2tier:
     driver: bridge
-
