@@ -47,5 +47,8 @@
   ENV PGPASSWORD=myapp_password
   ENV PGDATABASE=myapp_production
   
+  # Set environment variables for Rails secret key
+  ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
+  
   # Set the default command to run when starting the container
   CMD ["bash", "-c", "rm -f tmp/pids/server.pid && rails db:migrate && rails server -b 0.0.0.0"]  
