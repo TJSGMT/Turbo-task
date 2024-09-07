@@ -26,7 +26,8 @@
   COPY . /myapp
   
   # Precompile Rails assets in production mode (done in the builder stage)
-  RUN RAILS_ENV=production bundle exec rake assets:precompile
+  ARG SECRET_KEY_BASE
+  RUN RAILS_ENV=production SECRET_KEY_BASE=${SECRET_KEY_BASE} bundle exec rake assets:precompile
   
   #--------------------------Stage-2 Final image---------------------------
   FROM ruby:3.0.2-slim
@@ -49,7 +50,7 @@
   
   # Set environment variables for Rails secret key
   # Note: It's better to pass secrets securely in production using Docker secrets or environment variables
-  ENV SECRET_KEY_BASE=your_production_secret_key_here
+  ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
   
   # Set the default command to run when starting the container
   CMD ["bash", "-c", "rm -f tmp/pids/server.pid && rails db:migrate && rails server -b 0.0.0.0"]
