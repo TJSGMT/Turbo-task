@@ -28,7 +28,7 @@
   # Precompile Rails assets in production mode (done in the builder stage)
   ARG SECRET_KEY_BASE
   ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
-  RUN RAILS_ENV=production bundle exec rake assets:precompile
+  RUN RAILS_ENV=production bundle exec rake assets:precompile  --trace
     
   #--------------------------Stage-2 Final image---------------------------
   FROM ruby:3.0.2-slim
