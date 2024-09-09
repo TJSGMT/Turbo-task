@@ -31,6 +31,10 @@
   
   #--------------------------Stage-2 Final image---------------------------
   FROM ruby:3.0.2-slim
+
+  # Install runtime dependencies
+  RUN apt-get update -qq && apt-get install -y \
+      libpq-dev  # Ensure PostgreSQL client libraries are available
   
   # Set the working directory inside the container
   WORKDIR /app
@@ -43,7 +47,7 @@
   EXPOSE 3000
   
   # Set environment variables for PostgreSQL (optional; use Docker Compose to set these in practice)
-  ENV PGHOST=psql_db
+  ENV PGHOST=db
   ENV PGUSER=myapp_user
   ENV PGPASSWORD=myapp_password
   ENV PGDATABASE=myapp_production
