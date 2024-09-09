@@ -7,7 +7,7 @@
       yarn \
       postgresql-client \
       build-essential \
-      libpq-dev  # Changed to libpq-dev for PostgreSQL support
+      libpq-dev  # Ensure libpq-dev is installed for PostgreSQL support
   
   # Set an environment variable to skip installing Gem documentation
   ENV BUNDLE_WITHOUT="development test"
@@ -42,14 +42,13 @@
   # Expose the port the app runs on
   EXPOSE 3000
   
-  # Set environment variables for PostgreSQL (consider using secrets or env files in production)
-  ENV PGHOST=db
+  # Set environment variables for PostgreSQL (optional; use Docker Compose to set these in practice)
+  ENV PGHOST=psql_db
   ENV PGUSER=myapp_user
   ENV PGPASSWORD=myapp_password
   ENV PGDATABASE=myapp_production
   
-  # Set environment variables for Rails secret key
-  # Note: It's better to pass secrets securely in production using Docker secrets or environment variables
+  # Set environment variables for Rails secret key (pass securely in production)
   ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
   
   # Set the default command to run when starting the container
