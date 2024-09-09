@@ -1,5 +1,5 @@
 #---------------------------Stage-1 image builder-------------------------
-  FROM ruby:3.0.2 AS backend-builder
+  FROM ruby:3.0.2-slim AS backend-builder
 
   # Install dependencies
   RUN apt-get update -qq && apt-get install -y \
