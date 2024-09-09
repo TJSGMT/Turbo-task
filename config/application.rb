@@ -1,3 +1,5 @@
+require "active_support/core_ext/integer/time"
+
 require_relative "boot"
 
 require "rails/all"
