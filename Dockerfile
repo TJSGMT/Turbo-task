@@ -1,4 +1,4 @@
-#---------------------------Stage-1 image builder-------------------------
+#---------------------------Stage-1: Image Builder-------------------------
   FROM ruby:3.0.2-slim AS backend-builder
 
   # Install dependencies
@@ -7,7 +7,8 @@
       yarn \
       postgresql-client \
       build-essential \
-      libpq-dev  # Changed to libpq-dev for PostgreSQL support
+      libpq-dev \
+      && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
   
   # Set an environment variable to skip installing Gem documentation
   ENV BUNDLE_WITHOUT="development test"
@@ -25,12 +26,10 @@
   # Copy the rest of the application code into the container
   COPY . /myapp
   
-  # Precompile Rails assets in production mode (done in the builder stage)
-  ARG SECRET_KEY_BASE
-  ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
-  RUN RAILS_ENV=production bundle exec rake assets:precompile  --trace
-    
-  #--------------------------Stage-2 Final image---------------------------
+  # Precompile Rails assets in production mode
+  RUN RAILS_ENV=production bundle exec rake assets:precompile --trace
+  
+  #--------------------------Stage-2: Final Image---------------------------
   FROM ruby:3.0.2-slim
   
   # Set the working directory inside the container
@@ -43,15 +42,12 @@
   # Expose the port the app runs on
   EXPOSE 3000
   
-  # Set environment variables for PostgreSQL (consider using secrets or env files in production)
+  # Set environment variables for PostgreSQL
   ENV PGHOST=db
   ENV PGUSER=myapp_user
   ENV PGPASSWORD=myapp_password
   ENV PGDATABASE=myapp_production
   
-  # Set environment variables for Rails secret key
-  # Note: It's better to pass secrets securely in production using Docker secrets or environment variables
-  ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
-  
   # Set the default command to run when starting the container
   CMD ["bash", "-c", "rm -f tmp/pids/server.pid && rails db:migrate && rails server -b 0.0.0.0"]
+  

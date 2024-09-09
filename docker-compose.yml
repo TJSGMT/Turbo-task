@@ -1,10 +1,7 @@
 version: '3.9'
-
 services:
-
   psql_db:
     image: postgres:16.3
-    container_name: postgres
     environment:
       POSTGRES_USER: myapp_user
       POSTGRES_PASSWORD: myapp_password
@@ -15,14 +12,13 @@ services:
       - binding_2tier
 
   2tier_todo:
-    build: .
-    container_name: todo_app
+    image: ${dockerUser}/turbo-todo:latest
     environment:
       PGHOST: psql_db
       PGUSER: myapp_user
       PGPASSWORD: myapp_password
       PGDATABASE: myapp_development
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-default_secret_key_base} 
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE} # Make sure this is set correctly
     ports:
       - "3000:3000"
     depends_on:
