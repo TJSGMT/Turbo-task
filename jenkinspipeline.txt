@@ -1,0 +1,100 @@
+pipeline {
+    agent any
+    environment {
+        SONAR_HOME = tool "Sonar"
+    }
+    stages {
+        
+        stage("Code Clone") {
+            steps {
+                git url: "https://github.com/TJSGMT/Turbo-task.git", branch: "main"
+                echo "Code Cloned Successfully"
+            }
+        }
+
+        stage("SonarQube Analysis") {
+            steps {
+                script {
+                    echo "Starting SonarQube analysis"
+                    withSonarQubeEnv("Sonar") {  
+                        sh '/var/lib/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/Sonar/bin/sonar-scanner -Dsonar.projectname=todorails -Dsonar.projectKey=todorails'
+                    }
+                }
+            }
+        }
+
+        stage("OWASP Dependency Check") {
+            steps {
+                dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'OWASP'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+
+        stage("Build & Test") {
+            steps {
+                script {
+                    echo "Building the Docker image"
+                    withCredentials([string(credentialsId: 'rails-secret-key-base', variable: 'SECRET_KEY_BASE')]) {
+                        sh '''
+                            docker build --build-arg SECRET_KEY_BASE=${SECRET_KEY_BASE} --no-cache --rm -t turbo-todo:latest .
+                        '''
+                    }
+                    echo "Build completed"
+                }
+            }
+        }
+        
+        stage("Trivy Scan") {
+            steps {
+                sh "trivy image turbo-todo"
+            }
+        }
+
+        stage("Push to Private Docker Hub Repo") {
+            steps {
+                script {
+                    echo "Pushing image to Docker Hub"
+                    withCredentials([usernamePassword(credentialsId: "docker", passwordVariable: "dockerPass", usernameVariable: "dockerUser")]) {
+                        sh '''
+                            echo "${dockerPass}" | docker login -u "${dockerUser}" --password-stdin
+                            docker tag turbo-todo:latest ${dockerUser}/turbo-todo:latest
+                            docker push ${dockerUser}/turbo-todo:latest
+                        '''
+                    }
+                }
+                echo "Image pushed successfully"
+            }
+        }
+
+        stage("Final Deployment") {
+            steps {
+                script {
+                    echo "Deploying the application"
+                    withCredentials([string(credentialsId: 'rails-secret-key-base', variable: 'SECRET_KEY_BASE')]) {
+                        withCredentials([usernamePassword(credentialsId: 'docker', passwordVariable: 'dockerPass', usernameVariable: 'dockerUser')]) {
+                            sh '''
+                                echo "${dockerPass}" | docker login -u "${dockerUser}" --password-stdin
+                                docker-compose down
+                                docker-compose up -d    
+                            '''
+                        }
+                    }
+                }
+                echo "Deployment completed"
+            }
+        }
+
+        stage("Final Cleanup") {
+            steps {
+                script {
+                    echo "Final Docker system cleanup"
+                    sh '''
+                        docker system prune --all --force --volumes
+                    '''
+                }
+                echo "Docker cleanup completed"
+            }
+        }
+    }
+}
+
