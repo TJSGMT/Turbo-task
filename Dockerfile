@@ -26,7 +26,9 @@
   COPY . .
   
   # Precompile assets
-  RUN RAILS_ENV=production SECRET_KEY_BASE=your_generated_secret_key_base bundle exec rake assets:precompile
+  # Use ARG for build-time secrets and avoid hardcoding secrets
+  ARG SECRET_KEY_BASE
+  RUN RAILS_ENV=production SECRET_KEY_BASE=${SECRET_KEY_BASE} bundle exec rake assets:precompile
   
   #--------------------------Stage-2 Final Image---------------------------
   FROM ruby:3.0.2-slim
@@ -46,12 +48,13 @@
   # Expose the port the app runs on
   EXPOSE 3000
   
-  # Set environment variables for PostgreSQL and Rails
+  # Use environment variable management tools for sensitive information
   ENV PGHOST=db \
       PGUSER=myapp_user \
       PGPASSWORD=myapp_password \
-      PGDATABASE=myapp_production \
-      SECRET_KEY_BASE=your_generated_secret_key_base
+      PGDATABASE=myapp_production
   
   # Ensure the server.pid is removed and run database migrations before starting the server
+  # Prefer CMD over ENTRYPOINT for easier override in development
   CMD ["bash", "-c", "rm -f tmp/pids/server.pid && rails db:migrate && rails server -b 0.0.0.0"]
+  
