@@ -26,8 +26,7 @@
   COPY . .
   
   # Precompile assets
-  # SECRET_KEY_BASE is passed during runtime for security
-  RUN RAILS_ENV=production bundle exec rake assets:precompile
+  RUN RAILS_ENV=production SECRET_KEY_BASE=your_generated_secret_key_base bundle exec rake assets:precompile
   
   #--------------------------Stage-2 Final Image---------------------------
   FROM ruby:3.0.2-slim
@@ -47,11 +46,12 @@
   # Expose the port the app runs on
   EXPOSE 3000
   
-  # Set environment variables for PostgreSQL
+  # Set environment variables for PostgreSQL and Rails
   ENV PGHOST=db \
       PGUSER=myapp_user \
       PGPASSWORD=myapp_password \
-      PGDATABASE=myapp_production
+      PGDATABASE=myapp_production \
+      SECRET_KEY_BASE=your_generated_secret_key_base
   
   # Ensure the server.pid is removed and run database migrations before starting the server
-  CMD ["bash", "-c", "rm -f tmp/pids/server.pid && rails db:migrate && rails server -b 0.0.0.0"]  
+  CMD ["bash", "-c", "rm -f tmp/pids/server.pid && rails db:migrate && rails server -b 0.0.0.0"]
